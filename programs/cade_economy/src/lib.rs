@@ -26,4 +26,8 @@ pub mod newamm {
         ctx.accounts.init(&ctx.bumps, seed, authority)
     }
 
+    pub fn pay(ctx: Context<Pay>, amount: u64) -> Result<()> {
+        ctx.accounts.pay(amount)
+    }
+
 }
