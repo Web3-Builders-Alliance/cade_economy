@@ -7,6 +7,8 @@ use anchor_spl::{token_interface::{TokenAccount, Mint, TokenInterface}, associat
 pub struct Initialize<'info> {
     #[account(mut)]
     pub user : Signer<'info>,
+    #[account(mut)]
+    pub user2 : Signer<'info>,
     pub mint_x : Box<InterfaceAccount<'info,Mint>>,
     #[account(
     init,
@@ -26,6 +28,13 @@ pub struct Initialize<'info> {
     pub vault_x : Box<InterfaceAccount<'info,TokenAccount>>,
     #[account(
     init,
+    payer = user2,
+    associated_token::mint = mint_x,
+    associated_token::authority = new_auth
+    )]
+    pub vault_y : Box<InterfaceAccount<'info,TokenAccount>>,
+    #[account(
+    init,
     payer = user,
     associated_token::mint = mint_lp,
     associated_token::authority = auth
@@ -37,6 +46,12 @@ pub struct Initialize<'info> {
     bump
     )]
     pub auth : UncheckedAccount<'info>,
+    ///CHECKED: This is not dangerous. It's just used for signing.
+    #[account(
+    seeds = [b"new_auth"],
+    bump
+    )]
+    pub new_auth : UncheckedAccount<'info>,
     #[account(
     init,
     payer = user,
@@ -62,11 +77,9 @@ impl<'info> Initialize<'info> {
                 seed,
                 authority,
                 mint_x: self.mint_x.key(),
-                mint_lp : self.mint_lp.key(),
-                locked: false,
                 auth_bump: bumps.auth,
+                new_auth_bump : bumps.new_auth,
                 config_bump: bumps.config,
-                lp_bump: bumps.mint_lp,
             });
 
         Ok(())
