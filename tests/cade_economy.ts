@@ -17,7 +17,7 @@ import {randomBytes} from "crypto"
 import {assert} from "chai"
 import * as bs58 from "bs58";
 import {ASSOCIATED_PROGRAM_ID} from "@coral-xyz/anchor/dist/cjs/utils/token";
-//import {walletKey} from "../Keys/keys"
+import {wallet, wallet_two, wallet_three} from "../wallet/wallet"
 import {min} from "bn.js";
 
 const commitment: Commitment = "confirmed"; // processed, confirmed, finalized
@@ -86,19 +86,22 @@ describe("anchor-amm-2023", () => {
             )
                 .accounts({
                     auth,
+                    newAuth: new_auth,
                     user: initializer.publicKey,
+                    user2: initializer2.publicKey,
                     mintX: mint_x,
-                    mintLp: mint_lp,
+                    //mintLp: mint_lp,
                     vaultX: vault_x_ata,
-                    vaultLp: vault_lp_ata,
+                    vaultY: vault_y_ata,
+                    //vaultLp: vault_lp_ata,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer
-                ]).rpc();
+                    initializer, initializer2
+                ]).rpc({skipPreflight: true});
             await confirmTx(tx);
             console.log("Your transaction signature", tx);
         } catch (e) {
@@ -118,7 +121,7 @@ describe("anchor-amm-2023", () => {
                     mintLp: mint_lp,
                     vaultLp: vault_lp_ata,
                     config,
-                    lpConfig: lp_config,
+                    lpConfig : lp_config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
                     systemProgram: SystemProgram.programId
@@ -140,11 +143,11 @@ describe("anchor-amm-2023", () => {
             )
                 .accountsStrict({
                     auth,
-                    user: initializer.publicKey,
+                    user : initializer.publicKey,
                     mintX: mint_x,
                     mintLp: mint_lp,
                     vaultLp: vault_lp_ata,
-                    lpConfig: lp_config,
+                    lpConfig : lp_config,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
@@ -159,7 +162,7 @@ describe("anchor-amm-2023", () => {
             console.error(e);
         }
     })
-
+    //
 
     it("Swap X for LP", async () => {
         try {
@@ -169,21 +172,25 @@ describe("anchor-amm-2023", () => {
             )
                 .accountsStrict({
                     auth,
+                    newAuth: new_auth,
                     user: initializer.publicKey,
+                    user2: initializer2.publicKey,
                     mintX: mint_x,
                     mintLp: mint_lp,
                     userVaultX: initializer_x_ata,
                     userVaultLp: initializer_lp_ata,
                     vaultX: vault_x_ata,
+                    vaultY: vault_y_ata,
+                    vaultLp : vault_lp_ata,
+                    lpConfig : lp_config,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer
+                    initializer, initializer2
                 ]).rpc(
-                    {skipPreflight: true}
                 );
             await confirmTx(tx);
             console.log("Your transaction signature", tx);
@@ -195,25 +202,27 @@ describe("anchor-amm-2023", () => {
             }
         }
     });
-
+    //
     it("Pay to play", async () => {
         try {
             const tx = await program.methods.pay(
-                new BN(5_000_000)
+                new BN(1_000_000)
             )
                 .accountsStrict({
                     auth,
+                    gamer : gamer_vault.publicKey,
                     user: initializer.publicKey,
                     mintLp: mint_lp,
-                    vaultLp: vault_lp_ata,
+                    gamerVaultLp : gamer_game_lp_ata,
                     userVaultLp: initializer_lp_ata,
+                    lpConfig : lp_config,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer
+                    initializer , gamer_vault
                 ]).rpc(
 
                 );
@@ -228,30 +237,30 @@ describe("anchor-amm-2023", () => {
         }
     })
 
-    it("Claim Usdc", async () => {
+    it("Claim Usdc" , async () => {
         try {
             const tx = await program.methods.claimUsdcForCade(
             )
                 .accountsStrict({
                     auth,
-                    newAuth: new_auth,
-                    user: initializer.publicKey,
-                    user2: initializer2.publicKey,
-                    gamer: gamer_vault.publicKey,
-                    mintX: mint_x,
-                    mintLp: mint_lp,
-                    vaultLp: vault_lp_ata,
-                    vaultY: vault_y_ata,
-                    gamerVaultLp: gamer_game_lp_ata,
-                    gamerVaultX: gamer_x_ata,
-                    lpConfig: lp_config,
+                    newAuth : new_auth,
+                    user : initializer.publicKey,
+                    user2 : initializer2.publicKey,
+                    gamer : gamer_vault.publicKey,
+                    mintX : mint_x,
+                    mintLp : mint_lp,
+                    vaultLp : vault_lp_ata,
+                    vaultY : vault_y_ata,
+                    gamerVaultLp : gamer_game_lp_ata,
+                    gamerVaultX : gamer_x_ata,
+                    lpConfig : lp_config,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer, initializer2, gamer_vault
+                    initializer,initializer2,gamer_vault
                 ])
                 .rpc()
             await confirmTx(tx);
@@ -264,7 +273,6 @@ describe("anchor-amm-2023", () => {
             }
         }
     })
-
 // Helpers
     const confirmTx = async (signature: string) => {
         const latestBlockhash = await anchor.getProvider().connection.getLatestBlockhash();
