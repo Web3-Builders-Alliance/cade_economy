@@ -99,6 +99,60 @@ describe("anchor-amm-2023", () => {
     }
   });
 
+    it("Initialize_LP", async () => {
+        try {
+            const tx = await program.methods.lpInitialize(
+                seed,
+                initializer.publicKey
+            )
+                .accounts({
+                    auth,
+                    user: initializer.publicKey,
+                    mintLp: mint_lp,
+                    vaultLp: vault_lp_ata,
+                    config,
+                    lpConfig : lp_config,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
+                    systemProgram: SystemProgram.programId
+                })
+                .signers([
+                    initializer
+                ]).rpc({skipPreflight: true});
+            await confirmTx(tx);
+            console.log("Your transaction signature", tx);
+        } catch (e) {
+            console.error(e);
+        }
+    });
+
+    it("MintLP", async () => {
+        try {
+            const tx = await program.methods.mintLp(
+                new BN(5_000_000_000)
+            )
+                .accountsStrict({
+                    auth,
+                    user : initializer.publicKey,
+                    mintX: mint_x,
+                    mintLp: mint_lp,
+                    vaultLp: vault_lp_ata,
+                    lpConfig : lp_config,
+                    config,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
+                    systemProgram: SystemProgram.programId
+                })
+                .signers([
+                    initializer
+                ]).rpc();
+            await confirmTx(tx);
+            console.log("Your transaction signature", tx);
+        } catch (e) {
+            console.error(e);
+        }
+    })
+
 
   it("Swap X for LP", async () => {
     try {
