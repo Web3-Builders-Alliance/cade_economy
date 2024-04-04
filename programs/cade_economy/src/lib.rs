@@ -17,7 +17,7 @@ declare_id!("FtrbVfeTkte7b9KTHYzpaRzJZT1t1SHaR1QuhyAusNTW");
 
 #[program]
 pub mod newamm {
-    use crate::instruction::{ClaimUsdcForCade, LpInitialize, Pay};
+    use crate::instruction::LpInitialize;
     use super::*;
 
     pub fn initialize(
@@ -48,7 +48,7 @@ pub mod newamm {
         ctx.accounts.pay(amount)
     }
 
-    pub fn claim_usdc_for_cade(ctx: Context<ClaimUsdcForCade>) -> Result<()> {
+    pub fn claim_usdc_for_cade(ctx: Context<ClaimUsdc>) -> Result<()> {
         ctx.accounts.claim_usdc()
     }
 }
