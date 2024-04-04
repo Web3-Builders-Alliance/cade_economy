@@ -30,15 +30,18 @@ describe("anchor-amm-2023", () => {
     const program = new anchor.Program<Newamm>(IDL, programId, anchor.getProvider());
 
     // Set up our keys
-    const [initializer] = [new Keypair()];
-    //const initializer = Keypair.fromSecretKey(bs58.decode(walletKey));
+    const initializer = Keypair.fromSecretKey(bs58.decode(wallet));
+    const initializer2 = Keypair.fromSecretKey(bs58.decode(wallet_two))
+    const gamer_vault = Keypair.fromSecretKey(bs58.decode(wallet_three))
 
     // Random seed
     const seed = new BN(randomBytes(8));
 
     // PDAs
     const auth = PublicKey.findProgramAddressSync([Buffer.from("auth")], program.programId)[0];
+    const new_auth = PublicKey.findProgramAddressSync([Buffer.from("new_auth")], program.programId)[0];
     const config = PublicKey.findProgramAddressSync([Buffer.from("config"), seed.toBuffer().reverse()], program.programId)[0];
+    const lp_config = PublicKey.findProgramAddressSync([Buffer.from("lp_config"), seed.toBuffer().reverse()], program.programId)[0];
 
     // Mints
     let mint_x: PublicKey;
@@ -47,27 +50,31 @@ describe("anchor-amm-2023", () => {
     // ATAs
     let initializer_x_ata: PublicKey;
     let initializer_lp_ata: PublicKey;
+    let gamer_game_lp_ata: PublicKey;
+    let gamer_x_ata: PublicKey;
     let vault_x_ata: PublicKey;
+    let vault_y_ata: PublicKey;
     let vault_lp_ata: PublicKey;
 
-    it("Airdrop", async () => {
-        await Promise.all([initializer].map(async (k) => {
+    xit("Airdrop", async () => {
+        await Promise.all([initializer, initializer2, gamer_vault].map(async (k) => {
             return await anchor.getProvider().connection.requestAirdrop(k.publicKey, 100 * anchor.web3.LAMPORTS_PER_SOL)
         })).then(confirmTxs);
     });
 
     it("Create mints, tokens and ATAs", async () => {
         // Create mints and ATAs
-        let [u1] = await Promise.all([initializer].map(async (a) => {
-            return await newMintToAta(anchor.getProvider().connection, a)
-        }))
-        mint_x = u1.mint;
-        initializer_x_ata = u1.ata
-        console.log("mint_x", u1.mint.toBase58())
-        console.log("init_x_ata", u1.ata.toBase58())
+        // let [u1] = await Promise.all([initializer, initializer2].map(async (a) => {
+        //     return await newMintToAta(anchor.getProvider().connection, a)
+        // }))
+        mint_x = new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr")
+        initializer_x_ata = await  getAssociatedTokenAddress(mint_x,initializer.publicKey,false , tokenProgram)
         initializer_lp_ata = await getAssociatedTokenAddress(mint_lp, initializer.publicKey, false, tokenProgram);
+        gamer_game_lp_ata = await getAssociatedTokenAddress(mint_lp, gamer_vault.publicKey, false, tokenProgram);
+        gamer_x_ata = await getAssociatedTokenAddress(mint_x, gamer_vault.publicKey, false, tokenProgram);
         // Create take ATAs
         vault_x_ata = await getAssociatedTokenAddress(mint_x, auth, true, tokenProgram);
+        vault_y_ata = await getAssociatedTokenAddress(mint_x, new_auth, true, tokenProgram);
         vault_lp_ata = await getAssociatedTokenAddress(mint_lp, auth, true, tokenProgram);
     })
 
