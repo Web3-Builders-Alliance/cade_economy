@@ -1,6 +1,8 @@
 use anchor_lang::prelude::*;
 use crate::state::Config;
-use anchor_spl::{token_interface::{TokenAccount, Mint, TokenInterface}, associated_token::AssociatedToken};
+use anchor_spl::{token_interface::{TokenAccount, Mint}, associated_token::AssociatedToken};
+use anchor_spl::token::Token;
+use anchor_spl::token_interface::TokenInterface;
 
 #[derive(Accounts)]
 #[instruction(seed: u64)]
@@ -10,15 +12,6 @@ pub struct Initialize<'info> {
     #[account(mut)]
     pub user2 : Signer<'info>,
     pub mint_x : Box<InterfaceAccount<'info,Mint>>,
-    #[account(
-    init,
-    payer = user,
-    seeds = [b"lp" , config.key().as_ref()],
-    bump,
-    mint::decimals = 6,
-    mint::authority = auth
-    )]
-    pub mint_lp : Box<InterfaceAccount<'info,Mint>>,
     #[account(
     init,
     payer = user,
@@ -33,13 +26,6 @@ pub struct Initialize<'info> {
     associated_token::authority = new_auth
     )]
     pub vault_y : Box<InterfaceAccount<'info,TokenAccount>>,
-    #[account(
-    init,
-    payer = user,
-    associated_token::mint = mint_lp,
-    associated_token::authority = auth
-    )]
-    pub vault_lp : Box<InterfaceAccount<'info , TokenAccount>>,
     ///CHECKED: This is not dangerous. It's just used for signing.
     #[account(
     seeds = [b"auth"],
