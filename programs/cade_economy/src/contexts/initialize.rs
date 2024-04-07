@@ -1,72 +1,72 @@
 use anchor_lang::prelude::*;
-use crate::state::Lp_Config;
 use crate::state::Config;
 use anchor_spl::{token_interface::{TokenAccount, Mint}, associated_token::AssociatedToken};
+use anchor_spl::token::Token;
 use anchor_spl::token_interface::TokenInterface;
 
 #[derive(Accounts)]
 #[instruction(seed: u64)]
-pub struct InitializeLP<'info> {
+pub struct Initialize<'info> {
     #[account(mut)]
-    pub user: Signer<'info>,
+    pub user : Signer<'info>,
+    #[account(mut)]
+    pub user2 : Signer<'info>,
+    pub mint_x : Box<InterfaceAccount<'info,Mint>>,
     #[account(
     init,
     payer = user,
-    seeds = [b"lp", config.key().as_ref()],
-    bump,
-    mint::decimals = 6,
-    mint::authority = auth
-    )]
-    pub mint_lp: Box<InterfaceAccount<'info, Mint>>,
-    #[account(
-    init,
-    payer = user,
-    associated_token::mint = mint_lp,
+    associated_token::mint = mint_x,
     associated_token::authority = auth
     )]
-    pub vault_lp: Box<InterfaceAccount<'info, TokenAccount>>,
+    pub vault_x : Box<InterfaceAccount<'info,TokenAccount>>,
+    #[account(
+    init,
+    payer = user2,
+    associated_token::mint = mint_x,
+    associated_token::authority = new_auth
+    )]
+    pub vault_y : Box<InterfaceAccount<'info,TokenAccount>>,
     ///CHECKED: This is not dangerous. It's just used for signing.
     #[account(
     seeds = [b"auth"],
-    bump = config.auth_bump
+    bump
     )]
-    pub auth: UncheckedAccount<'info>,
+    pub auth : UncheckedAccount<'info>,
+    ///CHECKED: This is not dangerous. It's just used for signing.
     #[account(
-    seeds = [
-    b"config",
-    config.seed.to_le_bytes().as_ref()
-    ],
-    bump = config.config_bump,
+    seeds = [b"new_auth"],
+    bump
     )]
-    pub config: Box<Account<'info, Config>>,
+    pub new_auth : UncheckedAccount<'info>,
     #[account(
     init,
     payer = user,
-    seeds = [b"lp_config",seed.to_le_bytes().as_ref()],
+    seeds = [b"config",seed.to_le_bytes().as_ref()],
     bump,
     space = Config::INIT_SPACE
     )]
-    pub lp_config : Box<Account<'info , Lp_Config>>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
-    pub token_program: Interface<'info, TokenInterface>,
-    pub system_program: Program<'info, System>,
+    pub config : Box<Account<'info , Config>>,
+    pub associated_token_program : Program<'info,AssociatedToken>,
+    pub token_program : Interface<'info,TokenInterface>,
+    pub system_program : Program<'info,System>
 }
 
-impl<'info> InitializeLP<'info> {
+impl<'info> Initialize<'info> {
     pub fn init(
         &mut self,
-        bumps: &InitializeLPBumps,
-        seed: u64,
-        authority: Option<Pubkey>,
+        bumps: &InitializeBumps,
+        seed : u64,
+        authority : Option<Pubkey>
     ) -> Result<()> {
-        self.lp_config.set_inner(
-            Lp_Config {
-                seed,
-                authority,
-                mint_lp : self.mint_lp.key(),
-                lp_bump: bumps.mint_lp,
-                lp_config_bump : bumps.lp_config
-            });
+        self.config.set_inner(
+            Config {
+            seed,
+            authority,
+            mint_x: self.mint_x.key(),
+            auth_bump: bumps.auth,
+            new_auth_bump : bumps.new_auth,
+            config_bump: bumps.config,
+        });
 
         Ok(())
     }
