@@ -23,9 +23,13 @@ Cade Economy is for User profiles, prize swapping, & tourneys provide a communit
 # How it works on hight level
 
 1-  User will come in and put their USDC IN and gets propotniate amount of cade
+
 2 - USDC will equally split into Cade Treasury and Cade Game Treasury Vaults 
+
 3 - Recieved cade token will be used to play games and it is send to the corresponding Game Dev
+
 4 - Game Devs can redeem their cade tokens they get by other people playing their games into USDC on Weekly basis through Cade Game Treasury
+
 5 - Cade Treasury vault will be used for giving out real prizes to players  
 
 <img src="https://firebasestorage.googleapis.com/v0/b/shrine-76128.appspot.com/o/Cade%20Economy.png?alt=media&token=c42ef2fb-ff28-40eb-bc67-9a2c1ed5fd0d">
