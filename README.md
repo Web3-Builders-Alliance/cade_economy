@@ -20,7 +20,7 @@ Cade is a arcade platform, where blockchain-based games can function with a stru
 # Cade Economy Overview
 Cade Economy is for User profiles, prize swapping, & tourneys provide a community experience that drives retention & revenue
 
-# How it works on hight level
+# How it works on high level
 
 <img src="https://firebasestorage.googleapis.com/v0/b/shrine-76128.appspot.com/o/Cade%20Economy.png?alt=media&token=c42ef2fb-ff28-40eb-bc67-9a2c1ed5fd0d">
 
