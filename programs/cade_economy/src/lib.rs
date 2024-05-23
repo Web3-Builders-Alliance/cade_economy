@@ -40,12 +40,12 @@ pub mod newamm {
         ctx.accounts.mint_lp(amount)
     }
 
-    pub fn swap(ctx: Context<Swap>, amount: u64, expiration: i64) -> Result<()> {
-        ctx.accounts.swap(amount, expiration)
+    pub fn swap(ctx: Context<Swap>, amount: u64, expiration: i64, is_usdc: bool) -> Result<()> {
+        ctx.accounts.swap(amount, expiration, is_usdc)
     }
 
-    pub fn pay(ctx: Context<Pay>, amount: u64) -> Result<()> {
-        ctx.accounts.pay(amount)
+    pub fn pay(ctx: Context<Pay>, amount: u64, is_usdc: bool) -> Result<()> {
+        ctx.accounts.pay(amount, is_usdc)
     }
 
     pub fn claim_usdc_for_cade(ctx: Context<ClaimUsdc>) -> Result<()> {

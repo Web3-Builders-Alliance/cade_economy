@@ -9,44 +9,59 @@ pub struct Pay<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
     #[account(mut)]
-    pub gamer : Signer<'info>,
+    pub gamer: Signer<'info>,
     #[account(
-    mut,
-    seeds = [b"lp", config.key().as_ref()],
-    bump = lp_config.lp_bump
+        mut,
+        seeds = [b"lp", config.key().as_ref()],
+        bump = lp_config.lp_bump
     )]
     pub mint_lp: Box<InterfaceAccount<'info, Mint>>,
+    pub mint_bonk: Box<InterfaceAccount<'info, Mint>>,
     #[account(
-    init_if_needed,
-    payer = user,
-    associated_token::mint = mint_lp,
-    associated_token::authority = user
+        init_if_needed,
+        payer = user,
+        associated_token::mint = mint_lp,
+        associated_token::authority = user
     )]
     pub user_vault_lp: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
+        init_if_needed,
+        payer = user,
+        associated_token::mint = mint_bonk,
+        associated_token::authority = user
+    )]
+    pub user_vault_bonk: Box<InterfaceAccount<'info, TokenAccount>>,
+    #[account(
+        init_if_needed,
+        payer = gamer,
+        associated_token::mint = mint_lp,
+        associated_token::authority = gamer
+    )]
+    pub gamer_vault_lp: Box<InterfaceAccount<'info, TokenAccount>>,
+    #[account(
     init_if_needed,
-    payer = gamer,
-    associated_token::mint = mint_lp,
+    payer = user,
+    associated_token::mint = mint_bonk,
     associated_token::authority = gamer
     )]
-    pub gamer_vault_lp : Box<InterfaceAccount<'info,TokenAccount>>,
+    pub gamer_vault_bonk : Box<InterfaceAccount<'info,TokenAccount>>,
     ///CHECKED: This is not dangerous. It's just for signing.
     #[account(
-    seeds = [b"auth"],
-    bump = config.auth_bump
+        seeds = [b"auth"],
+        bump = config.auth_bump
     )]
     pub auth: UncheckedAccount<'info>,
     #[account(
-    seeds = [b"config", config.seed.to_le_bytes().as_ref()],
-    bump = config.config_bump
+        seeds = [b"config", config.seed.to_le_bytes().as_ref()],
+        bump = config.config_bump
     )]
     pub config: Box<Account<'info, Config>>,
     #[account(
-    seeds = [
-    b"lp_config",
-    config.seed.to_le_bytes().as_ref()
-    ],
-    bump = lp_config.lp_config_bump,
+        seeds = [
+        b"lp_config",
+        config.seed.to_le_bytes().as_ref()
+        ],
+        bump = lp_config.lp_config_bump,
     )]
     pub lp_config: Box<Account<'info, Lp_Config>>,
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -58,16 +73,30 @@ impl<'info> Pay<'info> {
     pub fn pay(
         &mut self,
         amount: u64,
+        is_usdc: bool,
     ) -> Result<()> {
-        let cpi_accounts = TransferChecked {
-            from: self.user_vault_lp.to_account_info(),
-            mint: self.mint_lp.to_account_info(),
-            to: self.gamer_vault_lp.to_account_info(),
-            authority: self.user.to_account_info(),
-        };
+        if is_usdc {
+            let cpi_accounts = TransferChecked {
+                from: self.user_vault_lp.to_account_info(),
+                mint: self.mint_lp.to_account_info(),
+                to: self.gamer_vault_lp.to_account_info(),
+                authority: self.user.to_account_info(),
+            };
 
-        let ctx = CpiContext::new(self.token_program.to_account_info(), cpi_accounts);
+            let ctx = CpiContext::new(self.token_program.to_account_info(), cpi_accounts);
 
-        transfer_checked(ctx, amount, self.mint_lp.decimals)
+            transfer_checked(ctx, amount, self.mint_lp.decimals)
+        } else {
+            let cpi_accounts = TransferChecked {
+                from: self.user_vault_bonk.to_account_info(),
+                mint: self.mint_bonk.to_account_info(),
+                to: self.gamer_vault_bonk.to_account_info(),
+                authority: self.user.to_account_info(),
+            };
+
+            let ctx = CpiContext::new(self.token_program.to_account_info(), cpi_accounts);
+
+            transfer_checked(ctx, amount, self.mint_bonk.decimals)
+        }
     }
 }
