@@ -5,6 +5,7 @@ pub mod swap;
 mod pay;
 mod mint_cade;
 mod claim_usdc;
+mod initialize_bonk;
 
 
 pub use initialize::*;
