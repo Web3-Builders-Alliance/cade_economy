@@ -14,8 +14,6 @@ pub struct ClaimUsdc<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
     #[account(mut)]
-    pub user2 : Signer<'info>,
-    #[account(mut)]
     pub gamer : Signer<'info>,
     pub mint_x: Box<InterfaceAccount<'info, Mint>>,
     #[account(
@@ -38,14 +36,14 @@ pub struct ClaimUsdc<'info> {
     pub vault_lp : Box<InterfaceAccount<'info , TokenAccount>>,
     #[account(
     init_if_needed,
-    payer = gamer,
+    payer = user,
     associated_token::mint = mint_lp,
     associated_token::authority = gamer
     )]
     pub gamer_vault_lp : Box<InterfaceAccount<'info,TokenAccount>>,
     #[account(
     init_if_needed,
-    payer = gamer,
+    payer = user,
     associated_token::mint = mint_x,
     associated_token::authority = gamer
     )]

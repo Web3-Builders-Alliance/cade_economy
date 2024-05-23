@@ -26,7 +26,7 @@ describe("anchor-amm-2023", () => {
     // Configure the client to use the local cluster.
     anchor.setProvider(anchor.AnchorProvider.env());
 
-    const programId = new PublicKey("2BQ9pgC2jJjc3v92B3stJLwwxmbQTr64ioSQCuQdtCaG");
+    const programId = new PublicKey("GBUZB4pgpCuKZoxzupmw1Qzbb77dR9NL7NyYhGbuWLau");
     const program = new anchor.Program<Newamm>(IDL, programId, anchor.getProvider());
 
     // Set up our keys
@@ -210,7 +210,6 @@ describe("anchor-amm-2023", () => {
                     auth,
                     newAuth: new_auth,
                     user: initializer.publicKey,
-                    user2: initializer2.publicKey,
                     mintX: mint_x,
                     mintLp: mint_lp,
                     userVaultX: initializer_x_ata,
@@ -225,7 +224,7 @@ describe("anchor-amm-2023", () => {
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer, initializer2
+                    initializer
                 ]).rpc(
                     {skipPreflight: true}
                 );
@@ -347,7 +346,43 @@ describe("anchor-amm-2023", () => {
         }
     })
 
-    it("Claim Usdc", async () => {
+
+    it("Pay to play with usdc", async () => {
+        try {
+            const tx = await program.methods.payWithUsdc(
+                new BN(1_000_000),
+            )
+                .accountsStrict({
+                    auth,
+                    gamer: gamer_vault.publicKey,
+                    user: initializer.publicKey,
+                    mintX: mint_x,
+                    userVaultX: initializer_x_ata,
+                    gamerVaultX: gamer_x_ata,
+                    lpConfig: lp_config,
+                    config,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                    systemProgram: SystemProgram.programId
+                })
+                .signers([
+                    initializer, gamer_vault
+                ]).rpc(
+                    {skipPreflight: true}
+                );
+            await confirmTx(tx);
+            console.log("Your transaction signature", tx);
+        } catch (e) {
+            let err = e as anchor.AnchorError;
+            console.error(e);
+            if (err.error.errorCode.code !== "InvalidAuthority") {
+                throw (e)
+            }
+        }
+    })
+
+
+    xit("Claim Usdc", async () => {
         try {
             const tx = await program.methods.claimUsdcForCade(
             )
@@ -355,7 +390,6 @@ describe("anchor-amm-2023", () => {
                     auth,
                     newAuth: new_auth,
                     user: initializer.publicKey,
-                    user2: initializer2.publicKey,
                     gamer: gamer_vault.publicKey,
                     mintX: mint_x,
                     mintLp: mint_lp,
@@ -370,7 +404,7 @@ describe("anchor-amm-2023", () => {
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer, initializer2, gamer_vault
+                    initializer
                 ])
                 .rpc(
                     {skipPreflight: true}

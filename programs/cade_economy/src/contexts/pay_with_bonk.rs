@@ -20,7 +20,7 @@ pub struct PayWithBonk<'info> {
     pub user_vault_bonk: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         init_if_needed,
-        payer = gamer,
+        payer = user,
         associated_token::mint = mint_bonk,
         associated_token::authority = gamer
     )]

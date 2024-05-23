@@ -25,7 +25,7 @@ pub struct Pay<'info> {
     pub user_vault_lp: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         init_if_needed,
-        payer = gamer,
+        payer = user,
         associated_token::mint = mint_lp,
         associated_token::authority = gamer
     )]

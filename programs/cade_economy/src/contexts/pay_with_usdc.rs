@@ -20,7 +20,7 @@ pub struct PayWithUSDC<'info> {
     pub user_vault_x: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         init_if_needed,
-        payer = gamer,
+        payer = user,
         associated_token::mint = mint_x,
         associated_token::authority = gamer
     )]

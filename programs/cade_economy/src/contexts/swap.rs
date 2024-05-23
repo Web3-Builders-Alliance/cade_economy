@@ -13,8 +13,6 @@ use crate::Lp_Config;
 pub struct Swap<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
-    #[account(mut)]
-    pub user2: Signer<'info>,
     pub mint_x: Box<InterfaceAccount<'info, Mint>>,
     #[account(
         mut,
