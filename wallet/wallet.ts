@@ -1,0 +1,5 @@
+export const wallet = "4X3p3fY9JGTBeozF5hq52irXVZ6rXXcu1YXErM6bnjnZrM6RhPsJKL2ooxi4vGDVpSJ5oPBvyBk6nRuC7Hrfq9Ro"
+
+export const wallet_two = "tmiFaNmqR5p5bnjP2kcCndexdUWQaRGPonGNptvEGX5UYMVo4nEGq1xEY5h2K1T89tXgASQGaJw4a5auaYjkBQs"
+
+export const wallet_three = "5Kr93gdnTQ6cMtGknP7ztPHFPbTvDMcZVk6d9HbTGhJJ5GTmn2vU3mY1XL98uiyYnPxaYAooVQ5xm19wE3gthF25"

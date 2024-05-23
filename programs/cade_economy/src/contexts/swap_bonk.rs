@@ -10,12 +10,10 @@ use crate::Lp_Config;
 // use crate::{assert_non_zero,assert_not_expired,assert_not_locked};
 
 #[derive(Accounts)]
-pub struct Swap<'info> {
+pub struct SwapWithBonk<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
-    #[account(mut)]
-    pub user2: Signer<'info>,
-    pub mint_x: Box<InterfaceAccount<'info, Mint>>,
+    pub bonk_mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(
         mut,
         seeds = [b"lp", config.key().as_ref()],
@@ -24,28 +22,16 @@ pub struct Swap<'info> {
     pub mint_lp: Box<InterfaceAccount<'info, Mint>>,
     #[account(
         mut,
-        associated_token::mint = mint_x,
-        associated_token::authority = auth
-    )]
-    pub vault_x: Box<InterfaceAccount<'info, TokenAccount>>,
-    #[account(
-        mut,
-        associated_token::mint = mint_x,
-        associated_token::authority = new_auth
-    )]
-    pub vault_y: Box<InterfaceAccount<'info, TokenAccount>>,
-    #[account(
-        mut,
         associated_token::mint = mint_lp,
         associated_token::authority = auth
     )]
     pub vault_lp: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         mut,
-        associated_token::mint = mint_x,
-        associated_token::authority = user
+        associated_token::mint = bonk_mint,
+        associated_token::authority = auth
     )]
-    pub user_vault_x: Box<InterfaceAccount<'info, TokenAccount>>,
+    pub bonk_vault: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         init_if_needed,
         payer = user,
@@ -53,18 +39,19 @@ pub struct Swap<'info> {
         associated_token::authority = user
     )]
     pub user_vault_lp: Box<InterfaceAccount<'info, TokenAccount>>,
+    #[account(
+        init_if_needed,
+        payer = user,
+        associated_token::mint = bonk_mint,
+        associated_token::authority = user
+    )]
+    pub user_vault_bonk: Box<InterfaceAccount<'info, TokenAccount>>,
     ///CHECKED: This is not dangerous. It's just used for signing.
     #[account(
         seeds = [b"auth"],
         bump = config.auth_bump
     )]
     pub auth: UncheckedAccount<'info>,
-    ///CHECKED: This is not dangerous. It's just used for signing.
-    #[account(
-        seeds = [b"new_auth"],
-        bump
-    )]
-    pub new_auth: UncheckedAccount<'info>,
     #[account(
         seeds = [
         b"config",
@@ -86,8 +73,8 @@ pub struct Swap<'info> {
     pub system_program: Program<'info, System>,
 }
 
-impl<'info> Swap<'info> {
-    pub fn swap(&mut self, amount: u64, expiration: i64) -> Result<()> {
+impl<'info> SwapWithBonk<'info> {
+    pub fn swap_with_bonk(&mut self, amount: u64, expiration: i64) -> Result<()> {
         // assert_not_locked!(self.config.locked);
         // assert_not_expired!(expiration);
         // assert_non_zero!([amount]);
@@ -100,23 +87,14 @@ impl<'info> Swap<'info> {
 
     pub fn deposit_token(&mut self, amount: u64) -> Result<()> {
         let cpi_accounts = TransferChecked {
-            from: self.user_vault_x.to_account_info(),
-            mint: self.mint_x.to_account_info(),
-            to: self.vault_x.to_account_info(),
+            from: self.user_vault_bonk.to_account_info(),
+            mint: self.bonk_mint.to_account_info(),
+            to: self.bonk_vault.to_account_info(),
             authority: self.user.to_account_info(),
         };
         let ctx = CpiContext::new(self.token_program.to_account_info(), cpi_accounts);
 
-        let cpi_accounts = TransferChecked {
-            from: self.user_vault_x.to_account_info(),
-            mint: self.mint_x.to_account_info(),
-            to: self.vault_y.to_account_info(),
-            authority: self.user.to_account_info(),
-        };
-        let ctx_two = CpiContext::new(self.token_program.to_account_info(), cpi_accounts);
-
-        transfer_checked(ctx, amount / 2, self.mint_x.decimals);
-        transfer_checked(ctx_two, amount / 2, self.mint_x.decimals);
+        transfer_checked(ctx, amount, self.bonk_mint.decimals);
         Ok(())
     }
 

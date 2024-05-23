@@ -5,13 +5,13 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-cade_economy = "FtrbVfeTkte7b9KTHYzpaRzJZT1t1SHaR1QuhyAusNTW"
+cade_economy = "DeMJhDYgRpStEnPXNB9r8htoTHNeuXmAnAVoiRUvVtuq"
 
 [registry]
-url = "https://api.apr.dev"
+url = "https://frosty-smart-smoke.solana-devnet.quiknode.pro/011aa36eee4c55c5bd8b2290980d614e2fc2c171/"
 
 [provider]
-cluster = "Localnet"
+cluster = "Devnet"
 wallet = "/root/.config/solana/id.json"
 
 [scripts]

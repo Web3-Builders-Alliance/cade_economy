@@ -26,7 +26,7 @@ describe("anchor-amm-2023", () => {
     // Configure the client to use the local cluster.
     anchor.setProvider(anchor.AnchorProvider.env());
 
-    const programId = new PublicKey("FtrbVfeTkte7b9KTHYzpaRzJZT1t1SHaR1QuhyAusNTW");
+    const programId = new PublicKey("DeMJhDYgRpStEnPXNB9r8htoTHNeuXmAnAVoiRUvVtuq");
     const program = new anchor.Program<Newamm>(IDL, programId, anchor.getProvider());
 
     // Set up our keys
@@ -42,19 +42,24 @@ describe("anchor-amm-2023", () => {
     const new_auth = PublicKey.findProgramAddressSync([Buffer.from("new_auth")], program.programId)[0];
     const config = PublicKey.findProgramAddressSync([Buffer.from("config"), seed.toBuffer().reverse()], program.programId)[0];
     const lp_config = PublicKey.findProgramAddressSync([Buffer.from("lp_config"), seed.toBuffer().reverse()], program.programId)[0];
+    const bonk_config = PublicKey.findProgramAddressSync([Buffer.from("bonk_config"), seed.toBuffer().reverse()], program.programId)[0];
 
     // Mints
     let mint_x: PublicKey;
+    let mint_bonk: PublicKey;
     let mint_lp = PublicKey.findProgramAddressSync([Buffer.from("lp"), config.toBuffer()], program.programId)[0];
 
     // ATAs
     let initializer_x_ata: PublicKey;
     let initializer_lp_ata: PublicKey;
+    let initializer_bonk_ata: PublicKey;
     let gamer_game_lp_ata: PublicKey;
     let gamer_x_ata: PublicKey;
+    let gamer_bonk_ata: PublicKey;
     let vault_x_ata: PublicKey;
     let vault_y_ata: PublicKey;
     let vault_lp_ata: PublicKey;
+    let vault_bonk: PublicKey;
 
     xit("Airdrop", async () => {
         await Promise.all([initializer, initializer2, gamer_vault].map(async (k) => {
@@ -68,14 +73,18 @@ describe("anchor-amm-2023", () => {
         //     return await newMintToAta(anchor.getProvider().connection, a)
         // }))
         mint_x = new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr")
-        initializer_x_ata = await  getAssociatedTokenAddress(mint_x,initializer.publicKey,false , tokenProgram)
+        mint_bonk = new PublicKey("2KP4EevthvYneGomwM9c7TwVef6BCyUi3Ps3c7oyjngz")
+        initializer_x_ata = await getAssociatedTokenAddress(mint_x, initializer.publicKey, false, tokenProgram)
         initializer_lp_ata = await getAssociatedTokenAddress(mint_lp, initializer.publicKey, false, tokenProgram);
+        initializer_bonk_ata = await getAssociatedTokenAddress(mint_bonk, initializer.publicKey, false, tokenProgram);
         gamer_game_lp_ata = await getAssociatedTokenAddress(mint_lp, gamer_vault.publicKey, false, tokenProgram);
         gamer_x_ata = await getAssociatedTokenAddress(mint_x, gamer_vault.publicKey, false, tokenProgram);
+        gamer_bonk_ata = await getAssociatedTokenAddress(mint_bonk, gamer_vault.publicKey, false, tokenProgram);
         // Create take ATAs
         vault_x_ata = await getAssociatedTokenAddress(mint_x, auth, true, tokenProgram);
         vault_y_ata = await getAssociatedTokenAddress(mint_x, new_auth, true, tokenProgram);
         vault_lp_ata = await getAssociatedTokenAddress(mint_lp, auth, true, tokenProgram);
+        vault_bonk = await getAssociatedTokenAddress(mint_bonk, auth, true, tokenProgram);
     })
 
     it("Initialize", async () => {
@@ -121,7 +130,7 @@ describe("anchor-amm-2023", () => {
                     mintLp: mint_lp,
                     vaultLp: vault_lp_ata,
                     config,
-                    lpConfig : lp_config,
+                    lpConfig: lp_config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
                     systemProgram: SystemProgram.programId
@@ -136,6 +145,33 @@ describe("anchor-amm-2023", () => {
         }
     });
 
+    it("InitializeBonk", async () => {
+        try {
+            const tx = await program.methods.bonkInitialize(
+                seed,
+                initializer.publicKey
+            )
+                .accounts({
+                    auth,
+                    user: initializer.publicKey,
+                    mintBonk: mint_bonk,
+                    vaultBonk: vault_bonk,
+                    bonkConfig: bonk_config,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
+                    systemProgram: SystemProgram.programId
+                }).signers(
+                    [initializer]
+                ).rpc({
+                    skipPreflight: true
+                })
+            await confirmTx(tx);
+            console.log("Your transaction signature", tx);
+        } catch (e) {
+            console.log(e)
+        }
+    })
+
     it("MintLP", async () => {
         try {
             const tx = await program.methods.mintLp(
@@ -143,11 +179,11 @@ describe("anchor-amm-2023", () => {
             )
                 .accountsStrict({
                     auth,
-                    user : initializer.publicKey,
+                    user: initializer.publicKey,
                     mintX: mint_x,
                     mintLp: mint_lp,
                     vaultLp: vault_lp_ata,
-                    lpConfig : lp_config,
+                    lpConfig: lp_config,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
@@ -168,7 +204,8 @@ describe("anchor-amm-2023", () => {
         try {
             const tx = await program.methods.swap(
                 new BN(5_000_000),
-                new BN(Math.floor(new Date().getTime() / 1000) + 600)
+                new BN(Math.floor(new Date().getTime() / 1000) + 600),
+                false
             )
                 .accountsStrict({
                     auth,
@@ -181,8 +218,11 @@ describe("anchor-amm-2023", () => {
                     userVaultLp: initializer_lp_ata,
                     vaultX: vault_x_ata,
                     vaultY: vault_y_ata,
-                    vaultLp : vault_lp_ata,
-                    lpConfig : lp_config,
+                    vaultLp: vault_lp_ata,
+                    lpConfig: lp_config,
+                    bonkMint: mint_bonk,
+                    bonkVault: vault_bonk,
+                    userVaultBonk: initializer_bonk_ata,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
@@ -191,6 +231,7 @@ describe("anchor-amm-2023", () => {
                 .signers([
                     initializer, initializer2
                 ]).rpc(
+                    {skipPreflight: true}
                 );
             await confirmTx(tx);
             console.log("Your transaction signature", tx);
@@ -206,25 +247,29 @@ describe("anchor-amm-2023", () => {
     it("Pay to play", async () => {
         try {
             const tx = await program.methods.pay(
-                new BN(1_000_000)
+                new BN(1_000_000),
+                false
             )
                 .accountsStrict({
                     auth,
-                    gamer : gamer_vault.publicKey,
+                    gamer: gamer_vault.publicKey,
                     user: initializer.publicKey,
                     mintLp: mint_lp,
-                    gamerVaultLp : gamer_game_lp_ata,
+                    gamerVaultLp: gamer_game_lp_ata,
                     userVaultLp: initializer_lp_ata,
-                    lpConfig : lp_config,
+                    lpConfig: lp_config,
+                    mintBonk: mint_bonk,
+                    userVaultBonk: initializer_bonk_ata,
+                    gamerVaultBonk: gamer_bonk_ata,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer , gamer_vault
+                    initializer, gamer_vault
                 ]).rpc(
-
+                    {skipPreflight: true}
                 );
             await confirmTx(tx);
             console.log("Your transaction signature", tx);
@@ -237,32 +282,34 @@ describe("anchor-amm-2023", () => {
         }
     })
 
-    it("Claim Usdc" , async () => {
+    it("Claim Usdc", async () => {
         try {
             const tx = await program.methods.claimUsdcForCade(
             )
                 .accountsStrict({
                     auth,
-                    newAuth : new_auth,
-                    user : initializer.publicKey,
-                    user2 : initializer2.publicKey,
-                    gamer : gamer_vault.publicKey,
-                    mintX : mint_x,
-                    mintLp : mint_lp,
-                    vaultLp : vault_lp_ata,
-                    vaultY : vault_y_ata,
-                    gamerVaultLp : gamer_game_lp_ata,
-                    gamerVaultX : gamer_x_ata,
-                    lpConfig : lp_config,
+                    newAuth: new_auth,
+                    user: initializer.publicKey,
+                    user2: initializer2.publicKey,
+                    gamer: gamer_vault.publicKey,
+                    mintX: mint_x,
+                    mintLp: mint_lp,
+                    vaultLp: vault_lp_ata,
+                    vaultY: vault_y_ata,
+                    gamerVaultLp: gamer_game_lp_ata,
+                    gamerVaultX: gamer_x_ata,
+                    lpConfig: lp_config,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer,initializer2,gamer_vault
+                    initializer, initializer2, gamer_vault
                 ])
-                .rpc()
+                .rpc(
+                    {skipPreflight: true}
+                )
             await confirmTx(tx);
             console.log("Your transaction signature", tx);
         } catch (e) {
