@@ -26,7 +26,7 @@ describe("anchor-amm-2023", () => {
     // Configure the client to use the local cluster.
     anchor.setProvider(anchor.AnchorProvider.env());
 
-    const programId = new PublicKey("DeMJhDYgRpStEnPXNB9r8htoTHNeuXmAnAVoiRUvVtuq");
+    const programId = new PublicKey("2BQ9pgC2jJjc3v92B3stJLwwxmbQTr64ioSQCuQdtCaG");
     const program = new anchor.Program<Newamm>(IDL, programId, anchor.getProvider());
 
     // Set up our keys
@@ -205,7 +205,6 @@ describe("anchor-amm-2023", () => {
             const tx = await program.methods.swap(
                 new BN(5_000_000),
                 new BN(Math.floor(new Date().getTime() / 1000) + 600),
-                false
             )
                 .accountsStrict({
                     auth,
@@ -220,9 +219,6 @@ describe("anchor-amm-2023", () => {
                     vaultY: vault_y_ata,
                     vaultLp: vault_lp_ata,
                     lpConfig: lp_config,
-                    bonkMint: mint_bonk,
-                    bonkVault: vault_bonk,
-                    userVaultBonk: initializer_bonk_ata,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
@@ -243,12 +239,50 @@ describe("anchor-amm-2023", () => {
             }
         }
     });
+
+    it("Swap BONK for LP", async () => {
+        try {
+            const tx = await program.methods.swapWithBonk(
+                new BN(5_000_000),
+                new BN(Math.floor(new Date().getTime() / 1000) + 600),
+            )
+                .accountsStrict({
+                    auth,
+                    user: initializer.publicKey,
+                    mintLp: mint_lp,
+                    bonkMint: mint_bonk,
+                    bonkVault: vault_bonk,
+                    userVaultBonk: initializer_bonk_ata,
+                    userVaultLp: initializer_lp_ata,
+                    vaultLp: vault_lp_ata,
+                    lpConfig: lp_config,
+                    config,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
+                    systemProgram: SystemProgram.programId
+                })
+                .signers([
+                    initializer
+                ]).rpc(
+                    {skipPreflight: true}
+                );
+            await confirmTx(tx);
+            console.log("Your transaction signature", tx);
+        } catch (e) {
+            let err = e as anchor.AnchorError;
+            console.error(e);
+            if (err.error.errorCode.code !== "InvalidAuthority") {
+                throw (e)
+            }
+        }
+    });
+
+
     //
     it("Pay to play", async () => {
         try {
             const tx = await program.methods.pay(
                 new BN(1_000_000),
-                false
             )
                 .accountsStrict({
                     auth,
@@ -258,9 +292,40 @@ describe("anchor-amm-2023", () => {
                     gamerVaultLp: gamer_game_lp_ata,
                     userVaultLp: initializer_lp_ata,
                     lpConfig: lp_config,
+                    config,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                    systemProgram: SystemProgram.programId
+                })
+                .signers([
+                    initializer, gamer_vault
+                ]).rpc(
+                    {skipPreflight: true}
+                );
+            await confirmTx(tx);
+            console.log("Your transaction signature", tx);
+        } catch (e) {
+            let err = e as anchor.AnchorError;
+            console.error(e);
+            if (err.error.errorCode.code !== "InvalidAuthority") {
+                throw (e)
+            }
+        }
+    })
+
+    it("Pay to play with bonk", async () => {
+        try {
+            const tx = await program.methods.payWithBonk(
+                new BN(1_000_000),
+            )
+                .accountsStrict({
+                    auth,
+                    gamer: gamer_vault.publicKey,
+                    user: initializer.publicKey,
                     mintBonk: mint_bonk,
                     userVaultBonk: initializer_bonk_ata,
                     gamerVaultBonk: gamer_bonk_ata,
+                    lpConfig: lp_config,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,

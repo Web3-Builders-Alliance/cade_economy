@@ -13,7 +13,7 @@ pub mod errors;
 
 pub use errors::AmmError;
 
-declare_id!("DeMJhDYgRpStEnPXNB9r8htoTHNeuXmAnAVoiRUvVtuq");
+declare_id!("2BQ9pgC2jJjc3v92B3stJLwwxmbQTr64ioSQCuQdtCaG");
 
 #[program]
 pub mod newamm {
@@ -62,6 +62,10 @@ pub mod newamm {
 
     pub fn pay_with_bonk(ctx: Context<PayWithBonk>, amount: u64) -> Result<()> {
         ctx.accounts.pay_with_bonk(amount)
+    }
+
+    pub fn pay_with_usdc(ctx: Context<PayWithUSDC>, amount: u64) -> Result<()> {
+        ctx.accounts.pay_with_usdc(amount)
     }
 
     pub fn claim_usdc_for_cade(ctx: Context<ClaimUsdc>) -> Result<()> {
