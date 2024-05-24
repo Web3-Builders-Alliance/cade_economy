@@ -71,4 +71,8 @@ pub mod newamm {
     pub fn claim_usdc_for_cade(ctx: Context<ClaimUsdc>) -> Result<()> {
         ctx.accounts.claim_usdc()
     }
+
+    pub fn withdraw_from_cadetreasury(ctx: Context<WithdrawCadeTreasury>) -> Result<()> {
+        ctx.accounts.withdraw_from_cadetreasury()
+    }
 }
