@@ -421,6 +421,37 @@ describe("anchor-amm-2023", () => {
             }
         }
     })
+
+    it("Withdraw_from_cadetreasury", async () => {
+        try {
+            const tx = await program.methods.withdrawFromCadetreasury()
+                .accounts({
+                    user: initializer.publicKey,
+                    auth: auth,
+                    config: config,
+                    mintX: mint_x,
+                    userVaultX: initializer_x_ata,
+                    vaultX: vault_x_ata,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                    systemProgram: SystemProgram.programId
+                })
+                .signers([
+                    initializer
+                ])
+                .rpc({
+                    skipPreflight: true
+                })
+            await confirmTx(tx);
+            console.log("Your transaction signature", tx);
+        } catch (e) {
+            let err = e as anchor.AnchorError;
+            console.error(e);
+            if (err.error.errorCode.code !== "InvalidAuthority") {
+                throw (e)
+            }
+        }
+    })
 // Helpers
     const confirmTx = async (signature: string) => {
         const latestBlockhash = await anchor.getProvider().connection.getLatestBlockhash();
