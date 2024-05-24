@@ -12,9 +12,7 @@ use crate::Lp_Config;
 #[derive(Accounts)]
 pub struct ClaimUsdc<'info> {
     #[account(mut)]
-    pub user: Signer<'info>,
-    #[account(mut)]
-    pub gamer : Signer<'info>,
+    pub gamer: Signer<'info>,
     pub mint_x: Box<InterfaceAccount<'info, Mint>>,
     #[account(
     mut,
@@ -36,14 +34,14 @@ pub struct ClaimUsdc<'info> {
     pub vault_lp : Box<InterfaceAccount<'info , TokenAccount>>,
     #[account(
     init_if_needed,
-    payer = user,
+    payer = gamer,
     associated_token::mint = mint_lp,
     associated_token::authority = gamer
     )]
     pub gamer_vault_lp : Box<InterfaceAccount<'info,TokenAccount>>,
     #[account(
     init_if_needed,
-    payer = user,
+    payer = gamer,
     associated_token::mint = mint_x,
     associated_token::authority = gamer
     )]

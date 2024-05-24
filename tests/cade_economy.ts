@@ -26,7 +26,7 @@ describe("anchor-amm-2023", () => {
     // Configure the client to use the local cluster.
     anchor.setProvider(anchor.AnchorProvider.env());
 
-    const programId = new PublicKey("14j6LDiow546ptJGMbDG2V99CNH5JPjWfmdwKVoZsjQZ");
+    const programId = new PublicKey("HoVv3yy1dkETFUm5H8Udr4o65hGnFUJK7L12cQ6urZPb");
     const program = new anchor.Program<Newamm>(IDL, programId, anchor.getProvider());
 
     // Set up our keys
@@ -392,7 +392,6 @@ describe("anchor-amm-2023", () => {
                 .accountsStrict({
                     auth,
                     newAuth: new_auth,
-                    user: initializer.publicKey,
                     gamer: gamer_vault.publicKey,
                     mintX: mint_x,
                     mintLp: mint_lp,
@@ -407,7 +406,7 @@ describe("anchor-amm-2023", () => {
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer
+                    gamer_vault
                 ])
                 .rpc(
                     {skipPreflight: true}
