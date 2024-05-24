@@ -25,12 +25,24 @@ pub struct PayWithUSDC<'info> {
         associated_token::authority = gamer
     )]
     pub gamer_vault_x: Box<InterfaceAccount<'info, TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = mint_x,
+        associated_token::authority = new_auth
+    )]
+    pub vault_y: Box<InterfaceAccount<'info, TokenAccount>>,
     ///CHECKED: This is not dangerous. It's just for signing.
     #[account(
         seeds = [b"auth"],
         bump = config.auth_bump
     )]
     pub auth: UncheckedAccount<'info>,
+    ///CHECKED: This is not dangerous. It's just used for signing.
+    #[account(
+        seeds = [b"new_auth"],
+        bump
+    )]
+    pub new_auth: UncheckedAccount<'info>,
     #[account(
         seeds = [b"config", config.seed.to_le_bytes().as_ref()],
         bump = config.config_bump
@@ -54,10 +66,34 @@ impl<'info> PayWithUSDC<'info> {
         &mut self,
         amount: u64,
     ) -> Result<()> {
+        self.send_to_gamer((70/100)*amount);
+        self.send_to_cade_treasury((30/100)*amount)
+    }
+
+    pub fn send_to_gamer(
+        &mut self,
+        amount: u64,
+    ) -> Result<()> {
         let cpi_accounts = TransferChecked {
             from: self.user_vault_x.to_account_info(),
             mint: self.mint_x.to_account_info(),
             to: self.gamer_vault_x.to_account_info(),
+            authority: self.user.to_account_info(),
+        };
+
+        let ctx = CpiContext::new(self.token_program.to_account_info(), cpi_accounts);
+
+        transfer_checked(ctx, amount, self.mint_x.decimals)
+    }
+
+    pub fn send_to_cade_treasury(
+        &mut self,
+        amount: u64,
+    ) -> Result<()> {
+        let cpi_accounts = TransferChecked {
+            from: self.user_vault_x.to_account_info(),
+            mint: self.mint_x.to_account_info(),
+            to: self.vault_y.to_account_info(),
             authority: self.user.to_account_info(),
         };
 

@@ -26,7 +26,7 @@ describe("anchor-amm-2023", () => {
     // Configure the client to use the local cluster.
     anchor.setProvider(anchor.AnchorProvider.env());
 
-    const programId = new PublicKey("GBUZB4pgpCuKZoxzupmw1Qzbb77dR9NL7NyYhGbuWLau");
+    const programId = new PublicKey("Bv5bHm5UekkxtnJ6QcTTx6RvxVattqR68tkMFtsnBYQ");
     const program = new anchor.Program<Newamm>(IDL, programId, anchor.getProvider());
 
     // Set up our keys
@@ -324,6 +324,7 @@ describe("anchor-amm-2023", () => {
                     mintBonk: mint_bonk,
                     userVaultBonk: initializer_bonk_ata,
                     gamerVaultBonk: gamer_bonk_ata,
+                    vaultBonk: vault_bonk,
                     lpConfig: lp_config,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
@@ -354,12 +355,14 @@ describe("anchor-amm-2023", () => {
             )
                 .accountsStrict({
                     auth,
+                    newAuth: new_auth,
                     gamer: gamer_vault.publicKey,
                     user: initializer.publicKey,
                     mintX: mint_x,
                     userVaultX: initializer_x_ata,
                     gamerVaultX: gamer_x_ata,
                     lpConfig: lp_config,
+                    vaultY: vault_y_ata,
                     config,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -382,7 +385,7 @@ describe("anchor-amm-2023", () => {
     })
 
 
-    xit("Claim Usdc", async () => {
+    it("Claim Usdc", async () => {
         try {
             const tx = await program.methods.claimUsdcForCade(
             )

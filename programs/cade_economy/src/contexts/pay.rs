@@ -29,6 +29,7 @@ pub struct Pay<'info> {
         associated_token::mint = mint_lp,
         associated_token::authority = gamer
     )]
+
     pub gamer_vault_lp: Box<InterfaceAccount<'info, TokenAccount>>,
     ///CHECKED: This is not dangerous. It's just for signing.
     #[account(

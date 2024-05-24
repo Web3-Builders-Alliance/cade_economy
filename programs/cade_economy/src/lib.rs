@@ -13,7 +13,7 @@ pub mod errors;
 
 pub use errors::AmmError;
 
-declare_id!("GBUZB4pgpCuKZoxzupmw1Qzbb77dR9NL7NyYhGbuWLau");
+declare_id!("Bv5bHm5UekkxtnJ6QcTTx6RvxVattqR68tkMFtsnBYQ");
 
 #[program]
 pub mod newamm {

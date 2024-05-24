@@ -25,6 +25,12 @@ pub struct PayWithBonk<'info> {
         associated_token::authority = gamer
     )]
     pub gamer_vault_bonk: Box<InterfaceAccount<'info, TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = mint_bonk,
+        associated_token::authority = auth
+    )]
+    pub vault_bonk: Box<InterfaceAccount<'info, TokenAccount>>,
     ///CHECKED: This is not dangerous. It's just for signing.
     #[account(
         seeds = [b"auth"],
@@ -54,10 +60,34 @@ impl<'info> PayWithBonk<'info> {
         &mut self,
         amount: u64,
     ) -> Result<()> {
+        self.send_to_gamer((70 / 100) * amount);
+        self.send_to_bonk_vault((30 / 100) * amount)
+    }
+
+    pub fn send_to_gamer(
+        &mut self,
+        amount: u64,
+    ) -> Result<()> {
         let cpi_accounts = TransferChecked {
             from: self.user_vault_bonk.to_account_info(),
             mint: self.mint_bonk.to_account_info(),
             to: self.gamer_vault_bonk.to_account_info(),
+            authority: self.user.to_account_info(),
+        };
+
+        let ctx = CpiContext::new(self.token_program.to_account_info(), cpi_accounts);
+
+        transfer_checked(ctx, amount, self.mint_bonk.decimals)
+    }
+
+    pub fn send_to_bonk_vault(
+        &mut self,
+        amount: u64,
+    ) -> Result<()> {
+        let cpi_accounts = TransferChecked {
+            from: self.user_vault_bonk.to_account_info(),
+            mint: self.mint_bonk.to_account_info(),
+            to: self.vault_bonk.to_account_info(),
             authority: self.user.to_account_info(),
         };
 
