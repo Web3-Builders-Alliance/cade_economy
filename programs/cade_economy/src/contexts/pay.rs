@@ -8,8 +8,8 @@ use crate::{Config, Lp_Config};
 pub struct Pay<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
-    #[account(mut)]
-    pub gamer: Signer<'info>,
+    /// CHECK:
+    pub gamer: AccountInfo<'info>,
     #[account(
         mut,
         seeds = [b"lp", config.key().as_ref()],

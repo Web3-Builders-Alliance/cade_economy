@@ -8,8 +8,8 @@ use crate::{Config, Lp_Config};
 pub struct PayWithBonk<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
-    #[account(mut)]
-    pub gamer: Signer<'info>,
+    /// CHECK:
+    pub gamer: AccountInfo<'info>,
     pub mint_bonk: Box<InterfaceAccount<'info, Mint>>,
     #[account(
         init_if_needed,

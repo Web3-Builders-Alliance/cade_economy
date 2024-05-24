@@ -26,7 +26,7 @@ describe("anchor-amm-2023", () => {
     // Configure the client to use the local cluster.
     anchor.setProvider(anchor.AnchorProvider.env());
 
-    const programId = new PublicKey("Bv5bHm5UekkxtnJ6QcTTx6RvxVattqR68tkMFtsnBYQ");
+    const programId = new PublicKey("14j6LDiow546ptJGMbDG2V99CNH5JPjWfmdwKVoZsjQZ");
     const program = new anchor.Program<Newamm>(IDL, programId, anchor.getProvider());
 
     // Set up our keys
@@ -73,7 +73,7 @@ describe("anchor-amm-2023", () => {
         //     return await newMintToAta(anchor.getProvider().connection, a)
         // }))
         mint_x = new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr")
-        mint_bonk = new PublicKey("2KP4EevthvYneGomwM9c7TwVef6BCyUi3Ps3c7oyjngz")
+        mint_bonk = new PublicKey("6yovzSFkH5erEPQCK7uQsQeZVRH7XWAZFZXWQBaJJ9DF")
         initializer_x_ata = await getAssociatedTokenAddress(mint_x, initializer.publicKey, false, tokenProgram)
         initializer_lp_ata = await getAssociatedTokenAddress(mint_lp, initializer.publicKey, false, tokenProgram);
         initializer_bonk_ata = await getAssociatedTokenAddress(mint_bonk, initializer.publicKey, false, tokenProgram);
@@ -297,7 +297,7 @@ describe("anchor-amm-2023", () => {
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer, gamer_vault
+                    initializer
                 ]).rpc(
                     {skipPreflight: true}
                 );
@@ -332,7 +332,7 @@ describe("anchor-amm-2023", () => {
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer, gamer_vault
+                    initializer
                 ]).rpc(
                     {skipPreflight: true}
                 );
@@ -369,7 +369,7 @@ describe("anchor-amm-2023", () => {
                     systemProgram: SystemProgram.programId
                 })
                 .signers([
-                    initializer, gamer_vault
+                    initializer
                 ]).rpc(
                     {skipPreflight: true}
                 );
