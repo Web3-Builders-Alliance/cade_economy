@@ -5,7 +5,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-cade_economy = "CbMfmQta38TTXDqKYQRZ73nV6JY2nGU5QyoVpx3mXW3J"
+cade_economy = "8YapqrY61XUSMUw6bCNK9kogG65mxM2j8PpRw4jaf8Vx"
 
 [registry]
 url = "https://frosty-smart-smoke.solana-devnet.quiknode.pro/011aa36eee4c55c5bd8b2290980d614e2fc2c171/"

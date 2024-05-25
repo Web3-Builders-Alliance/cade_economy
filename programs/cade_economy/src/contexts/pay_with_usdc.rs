@@ -66,8 +66,8 @@ impl<'info> PayWithUSDC<'info> {
         &mut self,
         amount: u64,
     ) -> Result<()> {
-        self.send_to_gamer((70/100)*amount);
-        self.send_to_cade_treasury((30/100)*amount)
+        self.send_to_gamer(amount / 2);
+        self.send_to_cade_treasury(amount / 2)
     }
 
     pub fn send_to_gamer(

@@ -26,7 +26,7 @@ describe("anchor-amm-2023", () => {
     // Configure the client to use the local cluster.
     anchor.setProvider(anchor.AnchorProvider.env());
 
-    const programId = new PublicKey("CbMfmQta38TTXDqKYQRZ73nV6JY2nGU5QyoVpx3mXW3J");
+    const programId = new PublicKey("8YapqrY61XUSMUw6bCNK9kogG65mxM2j8PpRw4jaf8Vx");
     const program = new anchor.Program<Newamm>(IDL, programId, anchor.getProvider());
 
     // Set up our keys
@@ -315,7 +315,7 @@ describe("anchor-amm-2023", () => {
     it("Pay to play with bonk", async () => {
         try {
             const tx = await program.methods.payWithBonk(
-                new BN(1_00_000),
+                new BN(1_000_000),
             )
                 .accountsStrict({
                     auth,
