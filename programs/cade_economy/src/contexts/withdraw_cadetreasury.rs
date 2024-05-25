@@ -46,7 +46,7 @@ impl<'info> WithdrawCadeTreasury<'info> {
             from: self.vault_x.to_account_info(),
             mint: self.mint_x.to_account_info(),
             to: self.user_vault_x.to_account_info(),
-            authority: self.user.to_account_info(),
+            authority: self.auth.to_account_info(),
         };
         let seeds = &[&b"auth"[..], &[self.config.auth_bump]];
         let signer_seeds = &[&seeds[..]];
