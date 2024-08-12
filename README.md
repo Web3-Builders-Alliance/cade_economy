@@ -1,4 +1,4 @@
-<img src="https://i.imgur.com/N6oQbzv.png">
+****<img src="https://i.imgur.com/N6oQbzv.png">
 <div align="center">
   <img src="https://badgen.net/badge/version/1.0/purple">
   <img src="https://badgen.net/badge/docs/1.0/purple">
@@ -15,7 +15,7 @@ The Ultimate Social Gaming Platform, and Indie Game Launchpad on @Solana
 
 # Overview
 
-Cade is a arcade platform, where blockchain-based games can function with a structured marketplace, rewards and social layer. In addition to providing our own games, we aim to provide a place for developers to self-publish their games and plug into our system, thereby providing distribution, incentives, and social with little effort on their end, allowing them to focus on creating awesome games for players to enjoy. The project is from the Q4 Artisan Cohort from WBA.
+Cade is a arcade platform, where blockchain-based games can function with a structured marketplace, rewards and social layer. In addition to providing our own games, we aim to provide a place for developers to self-publish their games and plug into our system, thereby providing distribution, incentives, and social with little effort on their end, allowing them to focus on creating awesome games for players to enjoy.
 
 # Cade Economy Overview
 Cade Economy is for User profiles, prize swapping, & tourneys provide a community experience that drives retention & revenue
